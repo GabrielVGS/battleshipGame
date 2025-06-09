@@ -16,14 +16,14 @@ class BattleshipClient:
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((self.host, self.port))
-            print("Connected to server!")
+            print("Conectado ao servidor!")
             
             # Start listening thread
             threading.Thread(target=self.listen_to_server, daemon=True).start()
             
             return True
         except Exception as e:
-            print(f"Failed to connect to server: {e}")
+            print(f"Falha ao conectar ao servidor: {e}")
             return False
     
     def listen_to_server(self):
@@ -38,7 +38,7 @@ class BattleshipClient:
                 
             except Exception as e:
                 if self.running:
-                    print(f"Error receiving data: {e}")
+                    print(f"Erro ao receber dados: {e}")
                 break
     
     def handle_server_message(self, message):
@@ -47,7 +47,7 @@ class BattleshipClient:
         if msg_type == 'welcome':
             self.player_id = message['player_id']
             print(f"\n{message['message']}")
-            print("Waiting for another player to join...")
+            print("Aguardando outro jogador se juntar...")
             
         elif msg_type == 'game_start':
             print(f"\n{message['message']}")
@@ -63,47 +63,47 @@ class BattleshipClient:
             
             if shooter == self.player_id:
                 if result == 'hit':
-                    print(f"\n🎯 HIT! You hit the enemy ship at ({row}, {col})")
+                    print(f"\n🎯 ACERTOU! Você atingiu o navio inimigo em ({row}, {col})")
                 elif result == 'hit_win':
-                    print(f"\n🏆 GAME WON! You sank all enemy ships!")
+                    print(f"\n🏆 VITÓRIA! Você afundou todos os navios inimigos!")
                 elif result == 'miss':
-                    print(f"\n💧 MISS! No ship at ({row}, {col})")
+                    print(f"\n💧 ERROU! Nenhum navio em ({row}, {col})")
             else:
                 if result == 'hit':
-                    print(f"\n💥 Enemy hit your ship at ({row}, {col})")
+                    print(f"\n💥 Inimigo atingiu seu navio em ({row}, {col})")
                 elif result == 'hit_win':
-                    print(f"\n💀 GAME OVER! Enemy sank all your ships!")
+                    print(f"\n💀 DERROTA! Inimigo afundou todos os seus navios!")
                 elif result == 'miss':
-                    print(f"\n🌊 Enemy missed at ({row}, {col})")
+                    print(f"\n🌊 Inimigo errou em ({row}, {col})")
             
         elif msg_type == 'error':
-            print(f"\n❌ Error: {message['message']}")
+            print(f"\n❌ Erro: {message['message']}")
     
     def display_game_state(self):
         if not self.game_state:
             return
         
         print("\n" + "="*50)
-        print(f"BATTLESHIP GAME - {self.player_id.upper()}")
+        print(f"BATALHA NAVAL - {self.player_id.upper()}")
         print("="*50)
         
-        print("\n🚢 YOUR FLEET:")
+        print("\n🚢 SUA FROTA:")
         self.print_board(self.game_state['your_board'], show_ships=True)
         
-        print("\n🎯 YOUR SHOTS:")
+        print("\n🎯 SEUS TIROS:")
         self.print_board(self.game_state['your_shots'], show_ships=False)
         
-        print("\n💥 ENEMY HITS ON YOU:")
+        print("\n💥 ATAQUES INIMIGOS EM VOCÊ:")
         self.print_board(self.game_state['opponent_shots'], show_ships=False)
         
         if self.game_state['game_over']:
-            print("\n🏁 GAME OVER!")
+            print("\n🏁 JOGO TERMINADO!")
         elif self.game_state['current_turn']:
-            print("\n🎯 YOUR TURN! Enter coordinates to shoot.")
+            print("\n🎯 SUA VEZ! Digite as coordenadas para atirar.")
         else:
-            print("\n⏳ Waiting for opponent's move...")
+            print("\n⏳ Aguardando jogada do oponente...")
         
-        print("\nLegend: ~ = Water, S = Ship, X = Hit, O = Miss")
+        print("\nLegenda: ~ = Água, S = Navio, X = Acerto, O = Erro")
     
     def print_board(self, board, show_ships=True):
         print("   " + " ".join([str(i) for i in range(10)]))
@@ -125,16 +125,16 @@ class BattleshipClient:
         try:
             self.socket.send(json.dumps(shot_msg).encode())
         except Exception as e:
-            print(f"Error sending shot: {e}")
+            print(f"Erro ao enviar tiro: {e}")
     
     def play_game(self):
         if not self.connect_to_server():
             return
         
-        print("Welcome to Battleship!")
-        print("Ships have been automatically placed for you.")
-        print("Enter coordinates as 'row col' (e.g., '3 4') to shoot.")
-        print("Type 'quit' to exit the game.")
+        print("Bem-vindo à Batalha Naval!")
+        print("Os navios foram posicionados automaticamente para você.")
+        print("Digite as coordenadas como 'linha coluna' (ex: '3 4') para atirar.")
+        print("Digite 'sair' para sair do jogo.")
         
         while self.running:
             try:
@@ -143,9 +143,9 @@ class BattleshipClient:
                     self.game_state['current_turn'] and 
                     not self.game_state['game_over']):
                     
-                    user_input = input("\nEnter coordinates (row col): ").strip().lower()
+                    user_input = input("\nDigite as coordenadas (linha coluna): ").strip().lower()
                     
-                    if user_input == 'quit':
+                    if user_input == 'sair':
                         break
                     
                     try:
@@ -153,13 +153,13 @@ class BattleshipClient:
                         if 0 <= row < 10 and 0 <= col < 10:
                             self.make_shot(row, col)
                         else:
-                            print("Coordinates must be between 0-9")
+                            print("Coordenadas devem estar entre 0-9")
                     except ValueError:
-                        print("Invalid input. Use format: row col (e.g., '3 4')")
+                        print("Entrada inválida. Use o formato: linha coluna (ex: '3 4')")
                 
                 elif self.game_state and self.game_state['game_over']:
-                    play_again = input("\nGame over! Type 'quit' to exit: ").strip().lower()
-                    if play_again == 'quit':
+                    play_again = input("\nJogo terminado! Digite 'sair' para sair: ").strip().lower()
+                    if play_again == 'sair':
                         break
                 
                 else:
@@ -173,7 +173,7 @@ class BattleshipClient:
         self.running = False
         if self.socket:
             self.socket.close()
-        print("\nThanks for playing!")
+        print("\nObrigado por jogar!")
 
 if __name__ == "__main__":
     client = BattleshipClient()

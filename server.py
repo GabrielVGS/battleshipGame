@@ -6,7 +6,7 @@ import random
 class BattleshipGame:
     def __init__(self):
         self.board_size = 10
-        self.ships = [5, 4, 3, 3, 2]  # Ship lengths
+        self.ships = [5, 4, 3, 3, 2]  # Tamanho dos navios
         self.players = {}
         self.current_turn = None
         self.game_started = False
@@ -54,7 +54,7 @@ class BattleshipGame:
     
     def make_shot(self, player_id, target_row, target_col):
         if self.current_turn != player_id or self.game_over:
-            return False, "Not your turn or game is over"
+            return False, "Não é seu turno ou o jogo terminou"
         
         target_player = None
         for pid, player in self.players.items():
@@ -63,11 +63,11 @@ class BattleshipGame:
                 break
         
         if not target_player:
-            return False, "No opponent found"
+            return False, "Oponente não encontrado"
         
         # Check if already shot at this position
         if target_player['shots_received'][target_row][target_col] != '~':
-            return False, "Already shot at this position"
+            return False, "Já atirou nesta posição"
         
         # Check if hit
         hit = target_player['board'][target_row][target_col] == 'S'
@@ -125,8 +125,8 @@ class BattleshipServer:
         server_socket.bind((self.host, self.port))
         server_socket.listen(2)
         
-        print(f"Battleship server started on {self.host}:{self.port}")
-        print("Waiting for players...")
+        print(f"Servidor Batalha Naval iniciado em {self.host}:{self.port}")
+        print("Aguardando jogadores...")
         
         while len(self.clients) < 2:
             client_socket, addr = server_socket.accept()
@@ -139,7 +139,7 @@ class BattleshipServer:
                 'shots_received': self.game.create_empty_board()
             }
             
-            print(f"Player {len(self.clients)} connected from {addr}")
+            print(f"Jogador {len(self.clients)} conectado de {addr}")
             
             # Auto-place ships for this player
             self.game.auto_place_ships(self.game.players[player_id]['board'])
@@ -148,7 +148,7 @@ class BattleshipServer:
             welcome_msg = {
                 'type': 'welcome',
                 'player_id': player_id,
-                'message': f'Welcome! You are {player_id}'
+                'message': f'Bem-vindo! Você é o {player_id}'
             }
             client_socket.send(json.dumps(welcome_msg).encode())
             
@@ -162,7 +162,7 @@ class BattleshipServer:
         # Notify both players that the game has started
         start_msg = {
             'type': 'game_start',
-            'message': 'Game started! Player 1 goes first.'
+            'message': 'Jogo iniciado! Jogador 1 começa.'
         }
         self.broadcast_message(start_msg)
         
@@ -180,7 +180,7 @@ class BattleshipServer:
                 self.process_message(message, player_id)
                 
             except Exception as e:
-                print(f"Error handling client {player_id}: {e}")
+                print(f"Erro ao lidar com cliente {player_id}: {e}")
                 break
         
         client_socket.close()
