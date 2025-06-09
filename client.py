@@ -136,18 +136,17 @@ class BattleshipClient:
         print(f"\n      BATALHA NAVAL - {self.player_id.upper()}\n")
         print("🚢 SUA FROTA (Ataques Inimigos):")
         self.print_board(self.game_state["your_board"])
-        print("\n🎯 SEUS TIROS (Frota Inimiga):")
+        print("🎯 SEUS TIROS (Frota Inimiga):")
         self.print_board(self.game_state["your_shots"])
 
         if self.last_shot_result:
             print("\n", "=" * 50)
             print(f">>> {self.last_shot_result} <<<")
             print("=" * 50)
-            # Limpa a mensagem para que não seja exibida novamente
             self.last_shot_result = ""
 
         if self.game_state.get("game_over"):
-            print("\n🏁 JOGO TERMINADO!")
+            print("\nJOGO TERMINADO!")
         elif self.game_state.get("current_turn"):
             print("\n>>> SUA VEZ! Digite as coordenadas para atirar.")
         else:
