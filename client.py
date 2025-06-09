@@ -15,6 +15,7 @@ class BattleshipClient:
         self.lock = threading.Lock()
         self.connection_established = threading.Event()
         self.placement_update_received = threading.Event()
+        self.last_shot_result = ""
 
     def clear_screen(self):
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -78,24 +79,22 @@ class BattleshipClient:
             elif msg_type == 'game_start':
                 print(f"\n\n>>> {message['message']} <<<\n")
             
+            elif msg_type == 'shot_result':
+                result, row, col = message['result'], message['row'], message['col']
+                if message['shooter'] == self.player_id:
+                    if result == 'hit': self.last_shot_result = f"🎯 ACERTOU! Você atingiu um navio em ({row}, {col})"
+                    elif result == 'hit_win': self.last_shot_result = f"🏆 VITÓRIA! Você afundou todos os navios inimigos!"
+                    elif result == 'miss': self.last_shot_result = f"💧 ERROU! Nenhum navio em ({row}, {col})"
+                else:
+                    if result == 'hit': self.last_shot_result = f"💥 ALERTA! Inimigo atingiu seu navio em ({row}, {col})"
+                    elif result == 'hit_win': self.last_shot_result = f"💀 DERROTA! Inimigo afundou todos os seus navios!"
+                    elif result == 'miss': self.last_shot_result = f"🌊 Sorte! Inimigo errou o tiro em ({row}, {col})"
+
             elif msg_type == 'game_state':
                 self.game_state.update(message['state'])
                 if self.game_state['game_phase'] == 'playing':
                     self.display_game_boards()
             
-            elif msg_type == 'shot_result':
-                result, row, col = message['result'], message['row'], message['col']
-                print("\n" + "="*50)
-                if message['shooter'] == self.player_id:
-                    if result == 'hit': print(f"🎯 ACERTOU! Você atingiu um navio em ({row}, {col})")
-                    elif result == 'hit_win': print(f"🏆 VITÓRIA! Você afundou todos os navios inimigos!")
-                    elif result == 'miss': print(f"💧 ERROU! Nenhum navio em ({row}, {col})")
-                else:
-                    if result == 'hit': print(f"💥 ALERTA! Inimigo atingiu seu navio em ({row}, {col})")
-                    elif result == 'hit_win': print(f"💀 DERROTA! Inimigo afundou todos os seus navios!")
-                    elif result == 'miss': print(f"🌊 Sorte! Inimigo errou o tiro em ({row}, {col})")
-                print("="*50)
-
             elif msg_type == 'error':
                 print(f"\n❌ Erro do Servidor: {message['message']}")
                 if self.game_state.get('game_phase') == 'setup':
@@ -110,12 +109,21 @@ class BattleshipClient:
     def display_game_boards(self):
         if not self.game_state: return
         self.clear_screen()
-        print("="*50); print(f"      BATALHA NAVAL - {self.player_id.upper()}"); print("="*50)
-        print("\n🚢 SUA FROTA (Ataques Inimigos):")
+        
+
+        print(f"\n      BATALHA NAVAL - {self.player_id.upper()}\n")
+        print("🚢 SUA FROTA (Ataques Inimigos):")
         self.print_board(self.game_state['your_board'])
         print("\n🎯 SEUS TIROS (Frota Inimiga):")
         self.print_board(self.game_state['your_shots'])
         
+        if self.last_shot_result:
+            print("\n","="*50)
+            print(f">>> {self.last_shot_result} <<<")
+            print("="*50)
+            # Limpa a mensagem para que não seja exibida novamente
+            self.last_shot_result = ""
+            
         if self.game_state.get('game_over'):
             print("\n🏁 JOGO TERMINADO!")
         elif self.game_state.get('current_turn'):
