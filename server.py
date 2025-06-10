@@ -26,12 +26,12 @@ class BattleshipServer:
             client_socket, addr = server_socket.accept()
             player_id = f"player_{len(self.clients) + 1}"
 
-            self.clients[player_id] = client_socket
+            self.clients[player_id] = client_socket # Adiciona o cliente ao dicionário de clientes, tal que o player_id é a chave e o client_socket é o valor.
             self.game.players[player_id] = {
-                "board": self.game.create_empty_board(),
+                "board": self.game.create_empty_board(),               
                 "shots_made": self.game.create_empty_board(),
                 "ready": False,
-                "ships_to_place": list(self.game.ships),
+                "ships_to_place": self.game.ships,
             }
 
             print(f"Jogador {player_id} conectado de {addr}.")

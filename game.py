@@ -1,6 +1,3 @@
-import socket
-import threading
-import json
 import random
 
 
@@ -13,24 +10,24 @@ class BattleshipGame:
         self.game_phase = "setup"  # Fases: 'setup', 'playing', 'game_over'
         self.game_over = False
 
-    def create_empty_board(self):
+    def create_empty_board(self) -> list[list[str]]:
         return [["~" for _ in range(self.board_size)] for _ in range(self.board_size)]
 
-    def is_valid_placement(self, board, row, col, length, direction):
-        if direction.upper() == "H":  # Horizontal
+    def is_valid_placement(self, board, row, col, length, direction) -> bool:
+        if direction.upper() == "H":
             if col + length > self.board_size:
                 return False
             for c in range(col, col + length):
                 if board[row][c] != "~":
                     return False
-        elif direction.upper() == "V":  # Vertical
+        elif direction.upper() == "V":
             if row + length > self.board_size:
                 return False
             for r in range(row, row + length):
                 if board[r][col] != "~":
                     return False
         else:
-            return False  # Direção inválida
+            return False
         return True
 
     def place_ship(self, board, row, col, length, direction):
@@ -105,5 +102,6 @@ class BattleshipGame:
     def check_all_players_ready(self):
         if len(self.players) < 2:
             return False
+        
         return all(player.get("ready", False) for player in self.players.values())
 
